@@ -17,12 +17,22 @@ import bcrypt from "bcryptjs";
 const createAdminSeed = async () => {
     try {
         const data = {
-            name: "admin",
             userName: "admin",
-            email: "admin@yopmail.com",
-            password: "Aa@12345",
+            fullName: "Admin Name",
             number: 1234567890,
-            role: "admin"
+            dob: new Date(),
+            locationService: false,
+            passion: ["Food & Drinks", "Entertainment", "Sports", "Travel & Activites", "Pets"],
+            typeOfPerson: ["Extrovert", "Scorpion"],
+            toFind: ["Male", "Female"],
+            gender: "Male",
+            sexualOrientation: "Heterosexual",
+            toBeShown: ["Female"],
+            age: 28,
+            distance: 10,
+            profilePhoto: "/public",
+            email: "admin@yopmail.com",
+            password: "Aa@12345",           
         }
         const adminAlreadyExist = await Users.find({ email: data.email })
         if (adminAlreadyExist > 0) {
