@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { userSignIn } from "../controllers/user.controller.js";
-import { userSignInValidation } from "../validators/user.validator.js";
+import { userSignIn, userSignUp, userVerification, userRegistration } from "../controllers/user.controller.js";
+import { userSignInValidation, userSignUpValidation, userVerificationValidation, userAuthenticationValidation } from "../validators/user.validator.js";
+
 
 const userRoute = Router();
 
@@ -9,5 +10,11 @@ userRoute.get("/", (req, res, next) => {
 })
 
 userRoute.post("/sign-in", userSignInValidation, userSignIn)
+
+userRoute.post("/sign-up", userSignUpValidation, userSignUp)
+
+userRoute.post("/verify", userVerificationValidation, userVerification)
+
+userRoute.post("/register", userAuthenticationValidation, userRegistration)
 
 export default userRoute;

@@ -14,7 +14,7 @@ const User = new Schema(
         userName: {
             type: String,
             trim: true,
-            required: true,
+            // required: true,
             unique: true,
         },
         fullName: {
@@ -28,7 +28,7 @@ const User = new Schema(
         },
         dob: {
             type: Date,
-            required: true,
+            // required: true,
         },
         locationService: {
             type: Boolean,
@@ -44,7 +44,7 @@ const User = new Schema(
         }],
         gender: {
             type: String,
-            required: true,
+            // required: true,
         },
         sexualOrientation: {
             type: String,
