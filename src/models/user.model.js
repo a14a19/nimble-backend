@@ -3,45 +3,6 @@ const Schema = mongoose.Schema;
 import bcrypt from "bcryptjs";
 const bcryptSalt = process.env.BCRYPT_SALT;
 
-const Passion = new Schema(
-    {
-        Entertainment: {
-            "Art": {
-                type: String
-            },
-            "Beauty": {
-                type: String
-            },
-            "Dancing": {
-                type: String
-            },
-            "Filming": {
-                type: String
-            },
-            "Gaming": {
-                type: String
-            },
-            "Movies": {
-                type: String
-            },
-            "Music": {
-                type: String
-            },
-            "Photography": {
-                type: String
-            },
-            "Singing": {
-                type: String
-            },
-            "Theatre": {
-                type: String
-            },
-            "Writing": {
-                type: String
-            }
-        },
-    }
-)
 
 const User = new Schema(
     {
@@ -67,7 +28,9 @@ const User = new Schema(
         locationService: {
             type: Boolean,
         },
-        passion: Passion,
+        FoodAndDrink: [{
+            type: String
+        }],
         typeOfPerson: [{
             type: String,
         }],
