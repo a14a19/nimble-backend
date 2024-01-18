@@ -26,7 +26,16 @@ export const userSignIn = async (req, res, next) => {
 
 export const userSignUp = async (req, res, next) => {
     try {
-        return res.status(200).send({ message: "User sign-up acceptable!", status: true })
+        const otp = Math.floor(1000 + (9000 * Math.random()));
+        const token = jwt.sign({ "otp": otp }, process.env.OTP_JWT_TOKEN_KEY, {
+            algorithm: 'HS256',
+            expiresIn: process.env.OTP_JWT_TOKEN_EXPIRES_IN
+        });
+
+        console.log(token);
+
+        return res.status(200).send({ token: token, status: true })
+        // return res.status(200).send({ message: "User sign-up acceptable!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
@@ -39,16 +48,13 @@ export const userVerification = async (req, res, next) => {
         // If you want to generate an integer in the range [x, y), you can use the following code:
         // Math.floor(x + (y - x) * Math.random());
         const otp = Math.floor(1000 + (9000 * Math.random()));
-
-        // console.log(token);
-        console.log(process.env.OTP_JWT_TOKEN_EXPIRES_IN);
-
         const token = jwt.sign({ "otp": otp }, process.env.OTP_JWT_TOKEN_KEY, {
             algorithm: 'HS256',
             expiresIn: process.env.OTP_JWT_TOKEN_EXPIRES_IN
         });
-        
 
+        // console.log(token);
+        
         return res.status(200).send({ token: token, status: true })
     } catch (e) {
         console.log("sign up user: ", e)
@@ -60,11 +66,10 @@ export const userRegistration = async (req, res, next) => {
     try {
         const token = req.body.token;
         const user_otp = req.body.otp;
-
         const decoded_token = jwt.decode(token);
+
         console.log(decoded_token);
-        console.log(req.body);
-        
+
         if (user_otp === decoded_token.otp) {
             const data = {
                 fullName: req.body.fullName,
@@ -72,8 +77,7 @@ export const userRegistration = async (req, res, next) => {
                 email: req.body.email,
                 password: req.body.password,           
             }
-            data.password = await bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
-    
+            data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
             const userDetails = await new Users(data).save();
             return res.status(200).send({ data: userDetails, message: "User registration successful!", status: true })
         }
