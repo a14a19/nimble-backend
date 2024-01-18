@@ -15,7 +15,7 @@ const User = new Schema(
             type: String,
             trim: true,
             // required: true,
-            unique: true,
+            // unique: true,
         },
         fullName: {
             type: String,
