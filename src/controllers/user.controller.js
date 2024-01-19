@@ -1,6 +1,8 @@
 import Users from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import Traits from "../models/traits.model.js";
+import UpdateProfile from "../models/updateProfile.model.js";
 
 export const userSignIn = async (req, res, next) => {
     try {
@@ -31,11 +33,19 @@ export const userSignUp = async (req, res, next) => {
             algorithm: 'HS256',
             expiresIn: process.env.OTP_JWT_TOKEN_EXPIRES_IN
         });
-
         console.log(token);
 
-        return res.status(200).send({ token: token, status: true })
-        // return res.status(200).send({ message: "User sign-up acceptable!", status: true })
+        const data = {
+            fullName: req.body.fullName,
+            number: req.body.number,
+            email: req.body.email,
+            password: req.body.password,           
+        }
+        data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
+        
+        const userDetails = await new Users(data).save();
+
+        return res.status(200).send({ data: userDetails, token: token, message: "User Registration Successful!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
@@ -67,23 +77,57 @@ export const userRegistration = async (req, res, next) => {
         const token = req.body.token;
         const user_otp = req.body.otp;
         const decoded_token = jwt.decode(token);
-
         console.log(decoded_token);
 
         if (user_otp === decoded_token.otp) {
-            const data = {
-                fullName: req.body.fullName,
-                number: req.body.number,
-                email: req.body.email,
-                password: req.body.password,           
-            }
-            data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
-            const userDetails = await new Users(data).save();
-            return res.status(200).send({ data: userDetails, message: "User registration successful!", status: true })
+            await Users.findByIdAndUpdate(req.params.id, { isVerified: true });
+            return res.status(200).send({ message: "User Verification successful!", status: true })
         }
         else {
             return res.status(404).send({ data: undefined, message: "Please enter valid OTP!", status: false })
         }
+    } catch (e) {
+        console.log("sign up user: ", e)
+        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
+    }
+}
+
+export const updateUserProfile = async (req, res, next) => {
+    try {
+        const user = await Users.findByIdAndUpdate(req.params.id, req.body);
+        return res.status(200).send({ data: user, message: "User Profile updated!", status: true })
+    } catch (e) {
+        console.log("sign up user: ", e)
+        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
+    }
+}
+
+export const getUserDetails = async (req, res, next) => {
+    try {
+        const traits = await Traits.find({});
+        let user = await Users.findById(req.params.id);
+        user = user["_doc"];
+        let updateUser = new UpdateProfile({});
+        
+        let modifiedUser = Object.keys(user).filter((key) => key in updateUser["_doc"]);
+        modifiedUser.forEach((key) => {
+            updateUser[key] = user[key];
+        });
+
+        updateUser.passion = traits[0]["passion"];
+        updateUser.typeOfPerson = traits[0]["typeOfPerson"];
+
+        const passion_categories = ["Entertainment", "FoodAndDrink", "Pets", "Sports", "TravellingAndActivities"];
+        passion_categories.forEach((key) => {
+            user[key].forEach((pass_key) => updateUser["passion"][key][pass_key] = true);
+        });
+
+        const traits_categories = ["AstrologySign", "Personality"];
+        traits_categories.forEach((key) => {
+            user[key].forEach((traits_key) => updateUser["typeOfPerson"][key][traits_key] = true);
+        });
+        
+        return res.status(200).send({ data: updateUser, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
