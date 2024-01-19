@@ -6,8 +6,12 @@ const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import { cornJob } from "./middlewares/cron.js";
 
 import routes from "./routes/index.js";
+
+// ! cron
+cornJob();
 
 // ! db
 import { connectToDatabase } from "./db/db.js";
