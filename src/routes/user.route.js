@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { userSignIn, userSignUp, userVerification, userRegistration } from "../controllers/user.controller.js";
-import { userSignInValidation, userSignUpValidation, userVerificationValidation, userAuthenticationValidation } from "../validators/user.validator.js";
+import { userSignIn, userSignUp, userVerification, userRegistration, getUserDetails, updateUserProfile } from "../controllers/user.controller.js";
+import { userSignInValidation, userSignUpValidation, userVerificationValidation } from "../validators/user.validator.js";
 
 
 const userRoute = Router();
@@ -13,8 +13,12 @@ userRoute.post("/sign-in", userSignInValidation, userSignIn)
 
 userRoute.post("/sign-up", userSignUpValidation, userSignUp)
 
-userRoute.post("/verify", userVerificationValidation, userVerification)
+// userRoute.post("/verify", userVerificationValidation, userVerification)
 
-userRoute.post("/register", userAuthenticationValidation, userRegistration)
+userRoute.post("/register/:id", userRegistration)
+
+userRoute.put("/update/:id", updateUserProfile)
+
+userRoute.get("/user/:id", getUserDetails)
 
 export default userRoute;

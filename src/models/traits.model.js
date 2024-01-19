@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const Passion = new Schema(
+export const Passion = new Schema(
     {
         Entertainment: {
             "Art": {
@@ -157,7 +157,7 @@ const Passion = new Schema(
     }
 )
 
-const TypeOfPerson = new Schema(
+export const TypeOfPerson = new Schema(
     {
         AstrologySign: {
             "Aquarius": {
