@@ -1,6 +1,7 @@
-import Users from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+
+import Users from "../models/user.model.js";
 import Traits from "../models/traits.model.js";
 import UpdateProfile from "../models/updateProfile.model.js";
 

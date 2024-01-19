@@ -62,9 +62,9 @@ const User = new Schema(
         toBeShown: [{
             type: String,
         }],
-        age: {
+        age: [{
             type: Number,
-        },
+        }],
         distance: {
             type: Number,
         },
