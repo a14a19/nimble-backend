@@ -4,7 +4,15 @@ import Users from "../models/user.model.js";
 async function removeUsers() {
     console.log("Print this")
     const user = await Users.find({});
-    console.log(new Date(user[0].dob))
+    const date = new Date()
+    date.setDate(date.getDate() - 7);
+    user.filter(async (userData, i) => {
+        console.log(new Date(userData.createdAt).getTime(), date.getTime())
+        if (new Date(userData.createdAt).getTime() < date.getTime() && !userData.isVerified) {
+            console.log(new Date(userData.createdAt).getTime(), date.getTime())
+            await Users.deleteOne({ _id: userData._id })
+        }
+    })
 }
 
 export const cornJob = () => {
@@ -13,7 +21,10 @@ export const cornJob = () => {
     cron.schedule('*/1 */9 * * 0', removeUsers);
 
     // * cron for every 1min
-    cron.schedule('*/1 * * * *', removeUsers);
+    // cron.schedule('*/1 * * * *', removeUsers);
+
+    // ? cron for every 1sec
+    // cron.schedule('* * * * * *', removeUsers);
 };
 
 
