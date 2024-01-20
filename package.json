@@ -9,7 +9,8 @@
     "start": "node src/main.js",
     "dev": "nodemon src/main.js",
     "admin": "node src/seeds/admin.js",
-    "traits": "node src/seeds/userTraits.js"
+    "traits": "node src/seeds/userTraits.js",
+    "ngrok_window": "ngrok http %npm_config_port%"
   },
   "author": "",
   "license": "ISC",

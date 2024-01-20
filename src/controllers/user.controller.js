@@ -34,7 +34,7 @@ export const userSignUp = async (req, res, next) => {
             algorithm: 'HS256',
             expiresIn: process.env.OTP_JWT_TOKEN_EXPIRES_IN
         });
-        console.log(token);
+        console.log(otp, token);
 
         const data = {
             fullName: req.body.fullName,

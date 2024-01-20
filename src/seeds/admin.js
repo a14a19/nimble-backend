@@ -38,6 +38,7 @@ const createAdminSeed = async () => {
             profilePhoto: "/public",
             email: "admin@yopmail.com",
             password: "Aa@12345",
+            isVerified: true,
         }
         const adminAlreadyExist = await Users.find({ email: data.email })
         if (adminAlreadyExist > 0) {
