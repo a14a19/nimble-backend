@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-
 import Users from "../models/user.model.js";
 import Traits from "../models/traits.model.js";
 import UpdateProfile from "../models/updateProfile.model.js";
@@ -142,6 +141,18 @@ export const getUserDetails = async (req, res, next) => {
         });
 
         return res.status(200).send({ data: updateUser, message: "User Profile updated!", status: true })
+    } catch (e) {
+        console.log("sign up user: ", e)
+        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
+    }
+}
+
+export const updatePassword = async (req, res, next) => {
+    try {
+        let user = await Users.findById(req.params.id);
+        user["password"] = await bcrypt.hashSync(req.body.password, Number(process.env.BCRYPT_SALT));
+        await user.save();
+        return res.status(200).send({ data: user, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
