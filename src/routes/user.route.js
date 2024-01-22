@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userSignIn, userSignUp, userVerification, userRegistration, getUserDetails, updateUserProfile } from "../controllers/user.controller.js";
+import { userSignIn, userSignUp, userVerification, userRegistration, getUserDetails, updateUserProfile, updateUserProfilePic } from "../controllers/user.controller.js";
 import { userSignInValidation, userSignUpValidation, userVerificationValidation } from "../validators/user.validator.js";
 
 
@@ -18,6 +18,8 @@ userRoute.post("/sign-up", userSignUpValidation, userSignUp)
 userRoute.post("/register/:id", userRegistration)
 
 userRoute.put("/update/:id", updateUserProfile)
+
+userRoute.put("/update-profile-pic/:id", updateUserProfilePic)
 
 userRoute.get("/user/:id", getUserDetails)
 

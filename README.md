@@ -6,7 +6,7 @@
 2. node src/seeds/admin.js or npm run admin
 3. node src/seeds/userTraits.js or npm run traits
 4. run - npm i;
-5. run - npm start;
+5. run - npm run dev;
 
 #### Follow the guide to expose your local host (http) to secure network (https) for using the api in React Native for iOS -
 
