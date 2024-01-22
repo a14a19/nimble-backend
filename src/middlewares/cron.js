@@ -18,7 +18,7 @@ async function removeUsers() {
 export const cornJob = () => {
 
     // ! cron for every week
-    cron.schedule('*/1 */9 * * 0', removeUsers);
+    cron.schedule('1 9 * * 0', removeUsers);
 
     // * cron for every 1min
     // cron.schedule('*/1 * * * *', removeUsers);

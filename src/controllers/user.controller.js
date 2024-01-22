@@ -10,7 +10,7 @@ export const userSignIn = async (req, res, next) => {
         const checkUserDetail = await Users.find({ email: req.body.email });
         const { password, ...claims } = checkUserDetail[0]._doc;
         const pwdCheck = new Users(req.body);
-        
+
         if (pwdCheck.validatePassword(req.body.password, checkUserDetail[0].password)) {
             const token = jwt.sign(claims, process.env.JWT_TOKEN_KEY, {
                 algorithm: 'HS256',
@@ -40,10 +40,10 @@ export const userSignUp = async (req, res, next) => {
             fullName: req.body.fullName,
             number: req.body.number,
             email: req.body.email,
-            password: req.body.password,           
+            password: req.body.password,
         }
         data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
-        
+
         const userDetails = await new Users(data).save();
 
         return res.status(200).send({ data: userDetails, token: token, message: "User Registration Successful!", status: true })
@@ -65,7 +65,7 @@ export const userVerification = async (req, res, next) => {
         });
 
         // console.log(token);
-        
+
         return res.status(200).send({ token: token, status: true })
     } catch (e) {
         console.log("sign up user: ", e)
@@ -103,13 +103,26 @@ export const updateUserProfile = async (req, res, next) => {
     }
 }
 
+export const updateUserProfilePic = async (req, res, next) => {
+    try {
+        const imageData = await req.body
+        // const getImage = await JSON.parse(imageData.image)
+        console.log(req.body)
+        return res.status(200).send({ data: imageData, message: "User Profile updated!", status: true })
+        // const user = await Users.findByIdAndUpdate(req.params.id, req.body);
+    } catch (e) {
+        console.log("sign up user: ", e)
+        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
+    }
+}
+
 export const getUserDetails = async (req, res, next) => {
     try {
         const traits = await Traits.find({});
         let user = await Users.findById(req.params.id);
         user = user["_doc"];
         let updateUser = new UpdateProfile({});
-        
+
         let modifiedUser = Object.keys(user).filter((key) => key in updateUser["_doc"]);
         modifiedUser.forEach((key) => {
             updateUser[key] = user[key];
@@ -127,7 +140,7 @@ export const getUserDetails = async (req, res, next) => {
         traits_categories.forEach((key) => {
             user[key].forEach((traits_key) => updateUser["typeOfPerson"][key][traits_key] = true);
         });
-        
+
         return res.status(200).send({ data: updateUser, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
