@@ -95,3 +95,28 @@ export const userVerificationValidation = async (req, res, next) => {
         next();
     }
 }
+
+export const userPasswordValidation = async (req, res, next) => {
+
+    await check('email', 'Email is required!').exists().trim().run(req);
+    await check('email', 'Email should be a string!').isString().run(req);
+    await check('email', 'Please enter the correct format for email!').isEmail().run(req);
+    await check('email', 'Email is not registered!').custom(async (value) => {
+        const findUserEmail = await Users.find({ email: value })
+        if (findUserEmail.length <= 0) {
+            return Promise.reject('Email is not registered!')
+        }
+    }).run(req);
+
+    await check('password', 'Password is required!').exists().trim().run(req);
+    await check('password', 'Password should be strong!').isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1 }).run(req);
+    await check('password', 'Password should be strong!').isString().run(req);
+
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+        return res.status(422).send({ errors: errors.array() })
+    } else {
+        next();
+    }
+}
