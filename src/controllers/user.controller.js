@@ -1,5 +1,9 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import * as cloudinary from 'cloudinary';
+import * as fs from "fs";
+import * as path from "path";
+
 import Users from "../models/user.model.js";
 import Traits from "../models/traits.model.js";
 import UpdateProfile from "../models/updateProfile.model.js";
@@ -104,11 +108,23 @@ export const updateUserProfile = async (req, res, next) => {
 
 export const updateUserProfilePic = async (req, res, next) => {
     try {
-        const imageData = await req.body
-        // const getImage = await JSON.parse(imageData.image)
-        console.log(req.body)
-        return res.status(200).send({ data: imageData, message: "User Profile updated!", status: true })
-        // const user = await Users.findByIdAndUpdate(req.params.id, req.body);
+        const __dirname = path.resolve("");
+        const filePath = req.file.path;
+        const cloudinaryPath = path.join(__dirname + "\\" + filePath);
+        console.log(req.file, req.params.id, filePath, __dirname, path.join(__dirname + "\\" + filePath))
+
+        // ! uploading to cloudinary
+        const cloudinaryResp = await cloudinary.v2.uploader.upload(cloudinaryPath);
+        console.log(cloudinaryResp);
+
+        // ! if image is saved at cloudinary, updating profile and delete from backend
+        if (cloudinaryResp.secure_url) {
+            await Users.findByIdAndUpdate(req.params.id, { profilePhoto: cloudinaryResp.secure_url })
+            fs.unlinkSync(cloudinaryPath);
+        }
+
+        const userData = await Users.findById(req.params.id, { password: 0 })
+        return res.status(200).send({ data: userData, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
