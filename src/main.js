@@ -5,10 +5,22 @@ import express from "express";
 const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { v2 as cloudinary } from 'cloudinary';
 import morgan from "morgan";
-import { cornJob } from "./middlewares/cron.js";
 
+import { cornJob } from "./middlewares/cron.js";
 import routes from "./routes/index.js";
+import { checkExistingDirectory } from "./utils/fileStructure.js";
+
+// ! cloudinary config
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_APIKEY,
+    api_secret: process.env.CLOUDINARY_SECRETKEY
+});
+
+// ! checking upload folder
+checkExistingDirectory("/public/profile-pic")
 
 // ! cron
 cornJob();
