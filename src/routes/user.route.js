@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userSignIn, userSignUp, userVerification, userRegistration, getUserDetails, updateUserProfile, updateUserProfilePic, updatePassword } from "../controllers/user.controller.js";
+import { userSignIn, userSignUp, userVerification, userVerifyingOTP, getUserDetails, updateUserProfile, updateUserProfilePic, updatePassword } from "../controllers/user.controller.js";
 import { userSignInValidation, userSignUpValidation, userVerificationValidation, userPasswordValidation } from "../validators/user.validator.js";
 import upload from "../middlewares/multer.js";
 
@@ -15,13 +15,11 @@ userRoute.post("/sign-up", userSignUpValidation, userSignUp)
 
 // userRoute.post("/verify", userVerificationValidation, userVerification)
 
-userRoute.post("/register/:id", userRegistration)
+userRoute.post("/verify-otp/:id", userVerifyingOTP)
 
 userRoute.put("/update/:id", updateUserProfile)
 
-// userRoute.put("/update-profile-pic/:id", upload.fields([{ name: "profilePic", maxCount: 1 }]), updateUserProfilePic)
 userRoute.put("/update-profile-pic/:id", upload.single('profilePic'), updateUserProfilePic)
-// userRoute.put("/update-profile-pic/:id", updateUserProfilePic)
 
 userRoute.get("/user/:id", getUserDetails)
 

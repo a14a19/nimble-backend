@@ -76,15 +76,18 @@ export const userVerification = async (req, res, next) => {
     }
 }
 
-export const userRegistration = async (req, res, next) => {
+export const userVerifyingOTP = async (req, res, next) => {
     try {
+        console.log(req.body);
         const token = req.body.token;
-        const user_otp = req.body.otp;
+        const userOtp = req.body.otp;
+        const prevScreen = req.body.prevScreen;
         const decoded_token = jwt.decode(token);
-        console.log(decoded_token);
 
-        if (user_otp === decoded_token.otp) {
-            await Users.findByIdAndUpdate(req.params.id, { isVerified: true });
+        if (userOtp === decoded_token.otp) {
+            if (prevScreen === "SignUp") {
+                await Users.findByIdAndUpdate(req.params.id, { isVerified: true });
+            }
             return res.status(200).send({ message: "User Verification successful!", status: true })
         }
         else {
