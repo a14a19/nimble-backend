@@ -46,6 +46,9 @@ export const userSignUpValidation = async (req, res, next) => {
     await check('password', 'Password should be strong!').isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1 }).run(req);
     await check('password', 'Password should be strong!').isString().run(req);
 
+    await check('currentScreen', 'Current Screen is required!').exists().trim().run(req);
+    await check('currentScreen', 'Current Screen should be a string').isString().trim().run(req);
+
     // await check('number', 'Number is required!').exists().trim().run(req);
     // await check('number', 'Please enter only numbers!').isNumeric().run(req);
     // await check('number', 'Please enter only 10 digit numbers!').isLength(10).run(req);
