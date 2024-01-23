@@ -191,23 +191,15 @@ export const getUserDetails = async (req, res, next) => {
 
 export const updatePassword = async (req, res, next) => {
     try {
+        if (req.body.password !== req.body.cnfPassword) {
+            return res.status(404).send({ data: undefined, message: "Password doesn't match with confirmed password", status: req.body.password === req.body.cnfPassword })
+        }
         let user = await Users.findById(req.params.id);
         user["password"] = await bcrypt.hashSync(req.body.password, Number(process.env.BCRYPT_SALT));
         await user.save();
-        return res.status(200).send({ data: user, message: "User Profile updated!", status: true })
+        return res.status(200).send({ data: user, message: "User password updated", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
-        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
-    }
-}
-
-export const userMatch = async (req, res, next) => {
-    try {
-        console.log(req.params.id)
-        const userData = await Users.findById(req.params.id);
-        return res.status(200).send({ data: userData, message: "User Profile updated!", status: true })
-    } catch (e) {
-        console.log("user match: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
     }
 }
