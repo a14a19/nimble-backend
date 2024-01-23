@@ -49,6 +49,8 @@ export const userSignUpValidation = async (req, res, next) => {
     await check('currentScreen', 'Current Screen is required!').exists().trim().run(req);
     await check('currentScreen', 'Current Screen should be a string').isString().trim().run(req);
 
+    await check('dob', 'DOB is required!').exists().trim().run(req);
+
     // await check('number', 'Number is required!').exists().trim().run(req);
     // await check('number', 'Please enter only numbers!').isNumeric().run(req);
     // await check('number', 'Please enter only 10 digit numbers!').isLength(10).run(req);
