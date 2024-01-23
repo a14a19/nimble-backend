@@ -32,6 +32,7 @@ export const userSignIn = async (req, res, next) => {
 
 export const userSignUp = async (req, res, next) => {
     try {
+        const currentScreen = req.body.currentScreen;
         const otp = Math.floor(1000 + (9000 * Math.random()));
         const token = jwt.sign({ "otp": otp }, process.env.OTP_JWT_TOKEN_KEY, {
             algorithm: 'HS256',
@@ -39,17 +40,39 @@ export const userSignUp = async (req, res, next) => {
         });
         console.log(otp, token);
 
-        const data = {
-            fullName: req.body.fullName,
-            number: req.body.number,
-            email: req.body.email,
-            password: req.body.password,
+        if (currentScreen === "SignUp") {
+
+            const todayDate = new Date().setFullYear(new Date().getFullYear() - 18);
+            const userDob = new Date(req.body.dob)
+
+            if (userDob.getTime() > todayDate) {
+                return res.status(200).send({ data: undefined, message: "User must be 18+", status: false })
+            }
+
+            const data = {
+                fullName: req.body.fullName,
+                email: req.body.email,
+                password: req.body.password,
+                dob: req.body.dob,
+            }
+
+            data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
+
+            const userDetails = await new Users(data).save();
+
+            return res.status(200).send({ data: userDetails, token: token, message: "User Registration Successful!", status: true })
+        } else {
+            const data = {
+                email: req.body.email,
+            }
+            const userData = await Users.find(data);
+            if (userData.length > 0) {
+                return res.status(200).send({ data: userData, token: token, message: "User is Registered.", status: true })
+            } else {
+                return res.status(404).send({ data: undefined, message: "User not registered, please signup.", status: false })
+            }
         }
-        data.password = bcrypt.hashSync(data.password, Number(process.env.BCRYPT_SALT));
 
-        const userDetails = await new Users(data).save();
-
-        return res.status(200).send({ data: userDetails, token: token, message: "User Registration Successful!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
@@ -174,6 +197,17 @@ export const updatePassword = async (req, res, next) => {
         return res.status(200).send({ data: user, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
+        return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
+    }
+}
+
+export const userMatch = async (req, res, next) => {
+    try {
+        console.log(req.params.id)
+        const userData = await Users.findById(req.params.id);
+        return res.status(200).send({ data: userData, message: "User Profile updated!", status: true })
+    } catch (e) {
+        console.log("user match: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
     }
 }

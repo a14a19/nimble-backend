@@ -9,8 +9,6 @@ const User = new Schema(
         userName: {
             type: String,
             trim: true,
-            // required: true,
-            // unique: true,
         },
         fullName: {
             type: String,
@@ -19,11 +17,10 @@ const User = new Schema(
         },
         number: {
             type: Number,
-            required: true,
         },
         dob: {
             type: Date,
-            // required: true,
+            required: true,
         },
         locationService: {
             type: Boolean,
@@ -54,7 +51,6 @@ const User = new Schema(
         }],
         gender: {
             type: String,
-            // required: true,
         },
         sexualOrientation: {
             type: String,
