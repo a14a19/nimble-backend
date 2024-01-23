@@ -10,6 +10,6 @@
 
 #### Follow the guide to expose your local host (http) to secure network (https) for using the api in React Native for iOS -
 
-1. Follow the link[https://dashboard.ngrok.com/get-started/setup/windows] and install ngrok on your system
+1. Follow the [link](https://dashboard.ngrok.com/get-started/setup/windows) and install ngrok on your system
 2. run - ngrok -v, to check if ngrok is installed or not
 3. run - npm run ngrok_window --port={{LOCAL_PORT_NUMBER}}

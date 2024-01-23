@@ -106,7 +106,7 @@ export const userPasswordValidation = async (req, res, next) => {
     await check('cnfPassword', 'Password is required!').exists().trim().run(req);
 
     await check('password', 'Password is required!').exists().trim().run(req);
-    await check('password', 'Password should be having minimum length of 8 characters with 1 Uppercase, 1 Lowercase and 1 special character.').isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1 }).run(req);
+    await check('password', 'Password should be having minimum length of 8 characters with 1 uppercase, 1 lowercase, 1 number and 1 special character.').isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1 }).run(req);
     await check('password', 'Password should be a string').isString().run(req);
 
     const errors = validationResult(req)
