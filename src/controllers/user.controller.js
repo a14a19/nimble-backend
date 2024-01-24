@@ -6,7 +6,6 @@ import * as path from "path";
 
 import Users from "../models/user.model.js";
 import Traits from "../models/traits.model.js";
-import UpdateProfile from "../models/updateProfile.model.js";
 
 export const userSignIn = async (req, res, next) => {
     try {
@@ -80,7 +79,7 @@ export const userVerification = async (req, res, next) => {
             expiresIn: process.env.OTP_JWT_TOKEN_EXPIRES_IN
         });
 
-        // console.log(token);
+        console.log(otp, token);
 
         const data = {
             email: req.body.email,
@@ -123,8 +122,38 @@ export const userVerifyingOTP = async (req, res, next) => {
 
 export const updateUserProfile = async (req, res, next) => {
     try {
-        const user = await Users.findByIdAndUpdate(req.params.id, req.body);
-        return res.status(200).send({ data: user, message: "User Profile updated!", status: true })
+        let user = await Users.findByIdAndUpdate(req.params.id, req.body);
+        let traits = await Traits.find({});
+        let passion = traits[0].passion;
+        let typeOfPerson = traits[0].typeOfPerson;
+
+        Object.entries(traits[0].passion._doc).map((elem) => {
+            if (req.body.hasOwnProperty(elem[0])) {
+                Object.entries(elem[1]).map((subElem) => {
+                    passion[`${elem[0]}`][`${subElem[0]}`] = req.body[`${elem[0]}`].includes(subElem[0])
+                })
+            }
+        })
+
+        Object.entries(traits[0].typeOfPerson._doc).map((elem) => {
+            if (req.body.hasOwnProperty(elem[0])) {
+                Object.entries(elem[1]).map((subElem) => {
+                    typeOfPerson[`${elem[0]}`][`${subElem[0]}`] = req.body[`${elem[0]}`].includes(subElem[0])
+                })
+            }
+        })
+
+        Object.entries(user._doc).map((elem) => {
+            if (req.body.hasOwnProperty(elem[0])) {
+                delete user._doc[`${elem[0]}`]
+                delete req.body[`${elem[0]}`]
+            }
+        })
+
+        delete passion._doc._id;
+        delete typeOfPerson._doc._id;
+
+        return res.status(200).send({ data: { ...user._doc, ...req.body, passion: passion, typeOfPerson: typeOfPerson }, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
@@ -158,30 +187,44 @@ export const updateUserProfilePic = async (req, res, next) => {
 
 export const getUserDetails = async (req, res, next) => {
     try {
-        const traits = await Traits.find({});
         let user = await Users.findById(req.params.id);
-        user = user["_doc"];
-        let updateUser = new UpdateProfile({});
+        let traits = await Traits.find({});
+        let passion = traits[0].passion;
+        let typeOfPerson = traits[0].typeOfPerson;
 
-        let modifiedUser = Object.keys(user).filter((key) => key in updateUser["_doc"]);
-        modifiedUser.forEach((key) => {
-            updateUser[key] = user[key];
-        });
+        Object.entries(traits[0].passion._doc).map((elem) => {
+            if (user._doc.hasOwnProperty(elem[0])) {
+                Object.entries(elem[1]).map((subElem) => {
+                    passion[`${elem[0]}`][`${subElem[0]}`] = user._doc[`${elem[0]}`].includes(subElem[0])
+                })
+            }
+        })
 
-        updateUser.passion = traits[0]["passion"];
-        updateUser.typeOfPerson = traits[0]["typeOfPerson"];
+        Object.entries(user._doc).map((elem) => {
+            if (traits[0].passion._doc.hasOwnProperty(elem[0])) {
+                delete user._doc[`${elem[0]}`]
+            }
+        })
 
-        const passion_categories = ["Entertainment", "FoodAndDrink", "Pets", "Sports", "TravellingAndActivities"];
-        passion_categories.forEach((key) => {
-            user[key].forEach((pass_key) => updateUser["passion"][key][pass_key] = true);
-        });
+        Object.entries(traits[0].typeOfPerson._doc).map((elem) => {
+            if (user._doc.hasOwnProperty(elem[0])) {
+                Object.entries(elem[1]).map((subElem) => {
+                    typeOfPerson[`${elem[0]}`][`${subElem[0]}`] = user._doc[`${elem[0]}`].includes(subElem[0])
+                })
+            }
+        })
 
-        const traits_categories = ["AstrologySign", "Personality"];
-        traits_categories.forEach((key) => {
-            user[key].forEach((traits_key) => updateUser["typeOfPerson"][key][traits_key] = true);
-        });
+        Object.entries(user._doc).map((elem) => {
+            if (traits[0].typeOfPerson._doc.hasOwnProperty(elem[0])) {
+                delete user._doc[`${elem[0]}`]
+            }
+        })
 
-        return res.status(200).send({ data: updateUser, message: "User Profile updated!", status: true })
+        delete passion._doc._id;
+        delete typeOfPerson._doc._id;
+
+        return res.status(200).send({ data: { ...user._doc, passion: passion, typeOfPerson: typeOfPerson }, message: "User Profile updated!", status: true })
+
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
