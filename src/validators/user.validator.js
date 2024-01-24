@@ -75,22 +75,6 @@ export const userVerificationValidation = async (req, res, next) => {
     await check('email', 'Email is required!').exists().trim().run(req);
     await check('email', 'Email should be a string!').isString().run(req);
     await check('email', 'Please enter the correct format for email!').isEmail().run(req);
-    await check('email', 'Email is already registered!').custom(async (value) => {
-        const findUserEmail = await Users.find({ email: value })
-        if (findUserEmail.length > 0) {
-            return Promise.reject('Email already registered!')
-        }
-    }).run(req);
-
-    await check('number', 'Number is required!').exists().trim().run(req);
-    await check('number', 'Please enter only numbers!').isNumeric().run(req);
-    await check('number', 'Please enter only 10 digit numbers!').isLength(10).run(req);
-    await check('number', 'Number is already registered!').custom(async (value) => {
-        const findNumber = await Users.find({ number: value })
-        if (findNumber.length > 0) {
-            return Promise.reject('Phone number already registered!')
-        }
-    }).run(req);
 
     const errors = validationResult(req)
 
