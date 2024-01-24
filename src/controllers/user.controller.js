@@ -61,16 +61,6 @@ export const userSignUp = async (req, res, next) => {
             const userDetails = await new Users(data).save();
 
             return res.status(200).send({ data: userDetails, token: token, message: "User Registration Successful!", status: true })
-        } else {
-            const data = {
-                email: req.body.email,
-            }
-            const userData = await Users.find(data);
-            if (userData.length > 0) {
-                return res.status(200).send({ data: userData, token: token, message: "User is Registered.", status: true })
-            } else {
-                return res.status(404).send({ data: undefined, message: "User not registered, please signup.", status: false })
-            }
         }
 
     } catch (e) {
@@ -92,7 +82,16 @@ export const userVerification = async (req, res, next) => {
 
         // console.log(token);
 
-        return res.status(200).send({ token: token, status: true })
+        const data = {
+            email: req.body.email,
+        }
+        const userData = await Users.find(data);
+        if (userData.length > 0) {
+            return res.status(200).send({ data: userData, token: token, message: "User is Registered.", status: true })
+        } else {
+            return res.status(404).send({ data: undefined, message: "User not registered, please signup.", status: false })
+        }
+
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })

@@ -13,7 +13,7 @@ userRoute.post("/sign-in", userSignInValidation, userSignIn)
 
 userRoute.post("/sign-up", userSignUpValidation, userSignUp)
 
-// userRoute.post("/verify", userVerificationValidation, userVerification)
+userRoute.post("/verify-email", userVerificationValidation, userVerification)
 
 userRoute.post("/verify-otp/:id", userVerifyingOTP)
 
