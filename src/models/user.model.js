@@ -82,7 +82,11 @@ const User = new Schema(
         isVerified: {
             type: Boolean,
             default: false,
-        }
+        },
+        reported: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,
