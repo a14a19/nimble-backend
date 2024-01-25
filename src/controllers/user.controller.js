@@ -7,6 +7,8 @@ import * as path from "path";
 import Users from "../models/user.model.js";
 import Traits from "../models/traits.model.js";
 
+import { twoObjMerging } from "../utils/helpers.js";
+
 export const userSignIn = async (req, res, next) => {
     try {
         const checkUserDetail = await Users.find({ email: req.body.email });
@@ -84,7 +86,7 @@ export const userVerification = async (req, res, next) => {
         const data = {
             email: req.body.email,
         }
-        const userData = await Users.find(data);
+        const userData = await Users.find(data).select('-password');
         if (userData.length > 0) {
             return res.status(200).send({ data: userData, token: token, message: "User is Registered.", status: true })
         } else {
@@ -122,36 +124,17 @@ export const userVerifyingOTP = async (req, res, next) => {
 
 export const updateUserProfile = async (req, res, next) => {
     try {
-        let user = await Users.findByIdAndUpdate(req.params.id, req.body);
+        let user = await Users.findByIdAndUpdate(req.params.id, req.body).select('-password');
         let traits = await Traits.find({});
-        let passion = traits[0].passion;
-        let typeOfPerson = traits[0].typeOfPerson;
-
-        Object.entries(traits[0].passion._doc).map((elem) => {
-            if (req.body.hasOwnProperty(elem[0])) {
-                Object.entries(elem[1]).map((subElem) => {
-                    passion[`${elem[0]}`][`${subElem[0]}`] = req.body[`${elem[0]}`].includes(subElem[0])
-                })
-            }
-        })
-
-        Object.entries(traits[0].typeOfPerson._doc).map((elem) => {
-            if (req.body.hasOwnProperty(elem[0])) {
-                Object.entries(elem[1]).map((subElem) => {
-                    typeOfPerson[`${elem[0]}`][`${subElem[0]}`] = req.body[`${elem[0]}`].includes(subElem[0])
-                })
-            }
-        })
+        let passion = twoObjMerging(traits[0].passion, req.body);
+        let typeOfPerson = twoObjMerging(traits[0].typeOfPerson, req.body);
 
         Object.entries(user._doc).map((elem) => {
-            if (req.body.hasOwnProperty(elem[0])) {
-                delete user._doc[`${elem[0]}`]
-                delete req.body[`${elem[0]}`]
+            if (traits[0].passion._doc.hasOwnProperty(elem[0]) || traits[0].typeOfPerson._doc.hasOwnProperty(elem[0])) {
+                delete user._doc[`${elem[0]}`];
+                delete req.body[`${elem[0]}`];
             }
         })
-
-        delete passion._doc._id;
-        delete typeOfPerson._doc._id;
 
         return res.status(200).send({ data: { ...user._doc, ...req.body, passion: passion, typeOfPerson: typeOfPerson }, message: "User Profile updated!", status: true })
     } catch (e) {
@@ -173,12 +156,14 @@ export const updateUserProfilePic = async (req, res, next) => {
 
         // ! if image is saved at cloudinary, updating profile and delete from backend
         if (cloudinaryResp.secure_url) {
-            await Users.findByIdAndUpdate(req.params.id, { profilePhoto: cloudinaryResp.secure_url })
+            let userData = await Users.findByIdAndUpdate(req.params.id, { profilePhoto: cloudinaryResp.secure_url }).select('-password');
+            console.log(userData);
             fs.unlinkSync(cloudinaryPath);
+            return res.status(200).send({ data: { ...userData._doc, profilePhoto: cloudinaryResp.secure_url }, message: "User Profile Pic updated", status: true })
+        } else {
+            return res.status(404).send({ data: undefined, message: "Error in uploading profile pic", status: false })
         }
 
-        const userData = await Users.findById(req.params.id, { password: 0 })
-        return res.status(200).send({ data: userData, message: "User Profile updated!", status: true })
     } catch (e) {
         console.log("sign up user: ", e)
         return res.status(500).send({ data: undefined, error: e, message: "Internal server error", status: false })
@@ -187,41 +172,16 @@ export const updateUserProfilePic = async (req, res, next) => {
 
 export const getUserDetails = async (req, res, next) => {
     try {
-        let user = await Users.findById(req.params.id);
+        let user = await Users.findById(req.params.id, { password: 0 });
         let traits = await Traits.find({});
-        let passion = traits[0].passion;
-        let typeOfPerson = traits[0].typeOfPerson;
-
-        Object.entries(traits[0].passion._doc).map((elem) => {
-            if (user._doc.hasOwnProperty(elem[0])) {
-                Object.entries(elem[1]).map((subElem) => {
-                    passion[`${elem[0]}`][`${subElem[0]}`] = user._doc[`${elem[0]}`].includes(subElem[0])
-                })
-            }
-        })
+        let passion = twoObjMerging(traits[0].passion, user._doc);
+        let typeOfPerson = twoObjMerging(traits[0].typeOfPerson, user._doc);
 
         Object.entries(user._doc).map((elem) => {
-            if (traits[0].passion._doc.hasOwnProperty(elem[0])) {
+            if (traits[0].passion._doc.hasOwnProperty(elem[0]) || traits[0].typeOfPerson._doc.hasOwnProperty(elem[0])) {
                 delete user._doc[`${elem[0]}`]
             }
         })
-
-        Object.entries(traits[0].typeOfPerson._doc).map((elem) => {
-            if (user._doc.hasOwnProperty(elem[0])) {
-                Object.entries(elem[1]).map((subElem) => {
-                    typeOfPerson[`${elem[0]}`][`${subElem[0]}`] = user._doc[`${elem[0]}`].includes(subElem[0])
-                })
-            }
-        })
-
-        Object.entries(user._doc).map((elem) => {
-            if (traits[0].typeOfPerson._doc.hasOwnProperty(elem[0])) {
-                delete user._doc[`${elem[0]}`]
-            }
-        })
-
-        delete passion._doc._id;
-        delete typeOfPerson._doc._id;
 
         return res.status(200).send({ data: { ...user._doc, passion: passion, typeOfPerson: typeOfPerson }, message: "User Profile updated!", status: true })
 
